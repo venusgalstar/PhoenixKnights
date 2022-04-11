@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract PhoenixKnightNFT is ERC721URIStorage, Ownable {
+contract PhoenixKnightNFT is ERC721, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _numberOfTokens;
     using SafeMath for uint256;
@@ -20,14 +21,19 @@ contract PhoenixKnightNFT is ERC721URIStorage, Ownable {
     address payable private feeWallet2;
     uint8 private percentOfWallet1;
     uint8 private percentOfWallet2;
-    uint256 private TOKEN_LIMIT;
-    bool _status;
-    uint256[] private indices;
+    uint256 private _totalSupply = 10000;
+    bool private _status;
+    bool[10000] private indices;
+    uint256 private spanSize = 100;
+    uint256 private consideringSpanIndex = 0;
+    uint256 nounce = 0;
     event Received(address addr, uint amount);
     event Fallback(address addr, uint amount);
 
-    constructor() ERC721("PhoenixKnightNFT", "PHKNFT") {
+    constructor() ERC721("PhoenixKnightNFT", "PHKNFT") 
+    {
         base_uri = "https://ipfs.infura.io/ipfs/QmU7S7urCReuuzfhcrFT9uko2ntUTQziQMbLZUbQULYjqq/";
+
         saleMode = 1;   // 1: preSale, 2:publicSale
         preSalePrice = 0.005 ether;
         publicSalePrice = 0.02 ether;
@@ -36,10 +42,6 @@ contract PhoenixKnightNFT is ERC721URIStorage, Ownable {
         percentOfWallet1 = 30;
         percentOfWallet2  = 70;
         _status = false;
-        TOKEN_LIMIT = 10000;
-        uint256 j;
-        indices = new uint256[](TOKEN_LIMIT);
-        for(j=0; j<TOKEN_LIMIT; j++) indices[j] = 0;
     }
 
     receive() external payable {
@@ -50,22 +52,8 @@ contract PhoenixKnightNFT is ERC721URIStorage, Ownable {
         emit Fallback(msg.sender, msg.value);
     }
 
-    modifier nonReentrant() {
-        require(_status != true, "ReentrancyGuard: reentrant call");
-        _status = true;
-        _;
-        _status = false;
-    }
-
-    function setTokenLimit(uint256 _limit) external onlyOwner{   
-        TOKEN_LIMIT = _limit;     
-        uint256 j;
-        indices = new uint256[](TOKEN_LIMIT);
-        for(j=0; j<TOKEN_LIMIT; j++) indices[j] = 0;
-    }
-
-    function getTokenLimit() public view returns(uint256){
-        return TOKEN_LIMIT;
+    function totalSupply() public view returns(uint256){
+        return _totalSupply;
     }
 
     function setSaleMode(uint8 _mode) external onlyOwner{
@@ -139,100 +127,79 @@ contract PhoenixKnightNFT is ERC721URIStorage, Ownable {
         return base_uri;
     }
 
-    function setBaseUri(string memory _newUri) external onlyOwner returns(string memory){
+    function setBaseUri(string memory _newUri) external onlyOwner {
         base_uri = _newUri;
-        return base_uri;
-    }
-
-    function tranferNFT(address _from, address _to, uint256 _tokenId) external payable {
-        transferFrom(_from, _to, _tokenId);
     }
 
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-        return super.tokenURI(_tokenId);
+        return string(abi.encodePacked(base_uri, Strings.toString(_tokenId)));
     }
 
-    function setTokenURI(uint256 tokenId, string memory _tokenURI) internal {
-        super._setTokenURI(tokenId, _tokenURI);
-    }
-    
-    function itod(uint256 x) private pure returns (string memory) {
-        if (x > 0) {
-            string memory str;
-            while (x > 0) {
-                str = string(abi.encodePacked(uint8(x % 10 + 48), str));
-                x /= 10;
-            }
-            return str;
-        }
-        return "0";
-    }
-    
-    function randomIndex() internal returns (uint) {
-        uint totalSize = TOKEN_LIMIT - _numberOfTokens.current();
-        uint index = uint(keccak256(abi.encodePacked(msg.sender, block.timestamp))) % totalSize;
-        uint value = 0;
-        if (indices[index] != 0) {
-            value = indices[index];
-        } else {
-            value = index;
-        }
-
-        if (indices[totalSize - 1] == 0) {
-      
-            indices[index] = totalSize - 1;
-        } else {
-            indices[index] = indices[totalSize - 1];
-        }
-        return value.add(1);
+    function setNounce(uint256 _nounce) public {
+        nounce = _nounce;
     }
 
-    function getIndicies() public view returns(uint256[] memory) {
-        uint256[] memory _indices = new uint256[](indices.length);
-        uint256 j;
-        for(j=0; j<indices.length; j++) _indices[j] = indices[j];
-        return _indices;
-    }
-    
-    function mint(address recipient)  external  payable nonReentrant {   
-        require(TOKEN_LIMIT - _numberOfTokens.current() > 0, "Cannot mint. The collection has no remains."); 
-        uint256 _price;
-        if(saleMode == 1) _price = preSalePrice;
-        if(saleMode == 2) _price = publicSalePrice;
-        require(msg.value >= _price, "Invalid price, price is less than sale price."); 
-        require(recipient != address(0), "Invalid recipient address." );          
-                 
-        uint256 nftId = randomIndex();
-        _numberOfTokens.increment();
-        _mint(recipient, nftId);
-        string memory fullUri = string.concat(base_uri, itod(nftId));
-        setTokenURI(nftId, fullUri);
+    function randomIndex() internal  returns (uint) 
+    {
+        uint index;
+
+        index = uint256(keccak256(abi.encodePacked(
+            block.timestamp , block.difficulty , msg.sender, nounce++ , spanSize
+        ))) % spanSize;
+
+        index += consideringSpanIndex * spanSize;
+
+        index = isExists(index);
         
-        feeWallet1.transfer(_price * percentOfWallet1 / 100);
-        feeWallet2.transfer(_price * percentOfWallet2 / 100);
+        return index; 
     }
 
-    function batchMint(address recipient, uint256 _count)  external   payable nonReentrant  { 
-        require(TOKEN_LIMIT - _numberOfTokens.current() > 0, "Cannot mint. The collection has no remains.");  
+    function isExists(uint256 index) internal returns(uint256)
+    {
+        uint256 idx=1;
+        uint256 newIndex = index;
+        if(indices[newIndex] == true) 
+        {
+            for(idx = 0; idx < spanSize; idx++)
+            {
+                if(indices[consideringSpanIndex * spanSize + idx] == false)
+                {
+                    newIndex = consideringSpanIndex * spanSize + idx;
+                    break;
+                }
+            }
+        }
+        indices[newIndex] = true;
+        return newIndex;
+    }
+
+    function mint(uint256 _count)  external  payable  {   
+        require(_totalSupply - _numberOfTokens.current() - _count > 0, "Cannot mint. The collection has no remains."); 
         uint256 _price;
         if(saleMode == 1) _price = preSalePrice * _count;
         if(saleMode == 2) _price = publicSalePrice * _count;
-        require(msg.value >= _price, "Invalid price, price is less than sale price."); 
-        require(recipient != address(0), "Invalid recipient address." );           
-        require(_count > 0, "Invalid count value." );       
-        uint256 i; 
-        string memory fullUri;
-        uint256 nftId;
-        for(i = 0; i < _count; i++)
-        {
-            nftId = randomIndex();
+        // require(msg.value >= _price, "Invalid price, price is less than sale price."); 
+
+        require(msg.sender != address(0), "Invalid recipient address." );        
+
+        uint256 idx;
+
+        for(idx = 0; idx < _count; idx++){
+
+            uint256 nftId = randomIndex();
             _numberOfTokens.increment();
-            _mint(recipient, nftId);
-            fullUri = string.concat(base_uri, itod(nftId));
-            setTokenURI(nftId, fullUri);
-        }
+            _mint(msg.sender, nftId);
+
+            if( _numberOfTokens.current() % spanSize == 0 )
+                consideringSpanIndex++;
+
+        }                   
         
-        feeWallet1.transfer(_price* percentOfWallet1 / 100);
-        feeWallet2.transfer(_price * percentOfWallet2 / 100);
+        // feeWallet1.transfer(_price * percentOfWallet1 / 100);
+        // feeWallet2.transfer(_price * percentOfWallet2 / 100);
+    }
+
+    function burn(uint256 _tokenId) external onlyOwner {
+        _burn(_tokenId);
     }
 }
