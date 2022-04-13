@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract PhoenixKnightNFT is ERC721, Ownable {
@@ -27,21 +28,32 @@ contract PhoenixKnightNFT is ERC721, Ownable {
     uint256 private spanSize = 100;
     uint256 private consideringSpanIndex = 0;
     uint256 nounce = 0;
+    mapping(address => bool) WhiteListForInvestors;
+    mapping(address => bool) WhiteListForUsers;
+    uint256 _totalWhitelistedInvestors;
+    uint256 _totalWhitelistedUsers;
+    uint256 maxOfWhiteListedUsers = 30;
+    bool enableMint = false;
+    uint256 pauseContract = 0;
     event Received(address addr, uint amount);
     event Fallback(address addr, uint amount);
+    event WithdrawAll(address addr, uint256 token, uint256 native);
+    event SetContractStatus(address addr, uint256 pauseValue);
 
     constructor() ERC721("PhoenixKnightNFT", "PHKNFT") 
     {
         base_uri = "https://ipfs.infura.io/ipfs/QmU7S7urCReuuzfhcrFT9uko2ntUTQziQMbLZUbQULYjqq/";
 
         saleMode = 1;   // 1: preSale, 2:publicSale
-        preSalePrice = 0.005 ether;
-        publicSalePrice = 0.02 ether;
+        preSalePrice = 3 ether;
+        publicSalePrice = 5 ether;
         feeWallet1 = payable( address(0xe28f60670529EE8d14277730CDA405e24Ac7251A) );
         feeWallet2 = payable( address(0x73875DeDa18dE0105987c880aFbbC21F3F6b955c) );
         percentOfWallet1 = 30;
         percentOfWallet2  = 70;
         _status = false;
+        _totalWhitelistedInvestors = 0;
+        _totalWhitelistedUsers = 0;
     }
 
     receive() external payable {
@@ -51,12 +63,22 @@ contract PhoenixKnightNFT is ERC721, Ownable {
     fallback() external payable { 
         emit Fallback(msg.sender, msg.value);
     }
+    
+    function getContractStatus() external view returns (uint256) {
+        return pauseContract;
+    }
+
+    function setContractStatus(uint256 _newPauseContract) external onlyOwner {
+        pauseContract = _newPauseContract;
+        emit SetContractStatus(msg.sender, _newPauseContract);
+    }
 
     function totalSupply() public view returns(uint256){
         return _totalSupply;
     }
 
     function setSaleMode(uint8 _mode) external onlyOwner{
+        require(pauseContract == 0, "Contract Paused");
         require(_mode == 1 || _mode == 2, "Invalid sale mode. Must be 1 or 2." );   
         saleMode = _mode;
     }
@@ -66,6 +88,7 @@ contract PhoenixKnightNFT is ERC721, Ownable {
     }
 
     function setPreSalePrice(uint256 _price) external onlyOwner{
+        require(pauseContract == 0, "Contract Paused");
         require(_price > 0, "Invalid price. Must be a positive number." );    
         preSalePrice = _price;
     }
@@ -75,6 +98,7 @@ contract PhoenixKnightNFT is ERC721, Ownable {
     }
 
     function setPublicSalePrice(uint256 _price) external onlyOwner{
+        require(pauseContract == 0, "Contract Paused");
         require(_price > 0, "Invalid price. Must be a positive number." );          
         publicSalePrice = _price;
     }
@@ -84,6 +108,7 @@ contract PhoenixKnightNFT is ERC721, Ownable {
     }
 
     function setFeeWallet1(address payable _wallet) external onlyOwner{
+        require(pauseContract == 0, "Contract Paused");
         require(_wallet != address(0), "Invalid wallet address." );          
         feeWallet1 = _wallet;
     }
@@ -93,6 +118,7 @@ contract PhoenixKnightNFT is ERC721, Ownable {
     }
 
     function setFeeWallet2(address payable _wallet) external onlyOwner{
+        require(pauseContract == 0, "Contract Paused");
         require(_wallet != address(0), "Invalid wallet address." );          
         feeWallet2 = _wallet;
     }
@@ -102,6 +128,7 @@ contract PhoenixKnightNFT is ERC721, Ownable {
     }
 
     function setPercentOfWallet1(uint8 _percent) external onlyOwner{
+        require(pauseContract == 0, "Contract Paused");
         require(_percent>=0 && _percent<=100, "Invalid percent. Must be in 0~100." );          
         percentOfWallet1 = _percent;
     }
@@ -111,6 +138,7 @@ contract PhoenixKnightNFT is ERC721, Ownable {
     }
 
     function setPercentOfWallet2(uint8 _percent) external onlyOwner{
+        require(pauseContract == 0, "Contract Paused");
         require(_percent>=0 && _percent<=100, "Invalid percent. Must be in 0~100." );      
         percentOfWallet2 = _percent;
     }
@@ -128,6 +156,7 @@ contract PhoenixKnightNFT is ERC721, Ownable {
     }
 
     function setBaseUri(string memory _newUri) external onlyOwner {
+        require(pauseContract == 0, "Contract Paused");
         base_uri = _newUri;
     }
 
@@ -136,11 +165,22 @@ contract PhoenixKnightNFT is ERC721, Ownable {
     }
 
     function setNounce(uint256 _nounce) public {
+        require(pauseContract == 0, "Contract Paused");
         nounce = _nounce;
+    }
+
+    function setEnableMint(bool _enable) public onlyOwner{
+        require(pauseContract == 0, "Contract Paused");
+        enableMint = _enable;
+    }
+
+    function getEnableMint() public view returns(bool){
+        return enableMint;
     }
 
     function randomIndex() internal  returns (uint) 
     {
+        require(pauseContract == 0, "Contract Paused");
         uint index;
 
         index = uint256(keccak256(abi.encodePacked(
@@ -156,6 +196,7 @@ contract PhoenixKnightNFT is ERC721, Ownable {
 
     function isExists(uint256 index) internal returns(uint256)
     {
+        require(pauseContract == 0, "Contract Paused");
         uint256 idx=1;
         uint256 newIndex = index;
         if(indices[newIndex] == true) 
@@ -173,26 +214,71 @@ contract PhoenixKnightNFT is ERC721, Ownable {
         return newIndex;
     }
 
+    function addInvestors2WhiteList(address[] memory _wallets) public onlyOwner{
+        require(pauseContract == 0, "Contract Paused");
+        uint256 _len = _wallets.length;
+        uint256 j;
+        for(j = 0; j < _len; j++) 
+        {
+            WhiteListForInvestors[_wallets[j]] = true;
+            _totalWhitelistedInvestors ++;
+        }
+    } 
+
+    function isWhitelistedForInvestors(address _addr) public view returns(bool){
+        return WhiteListForInvestors[_addr];
+    }
+
+    function setNumberOfWLUsers(uint256 _max) public onlyOwner{
+        require(pauseContract == 0, "Contract Paused");
+        maxOfWhiteListedUsers = _max;
+    }
+
+    function setNumberOfWLUsers() public view returns(uint256){
+        require(pauseContract == 0, "Contract Paused");
+        return maxOfWhiteListedUsers;
+    }
+
+    function addUser2WhiteList(address _addr) public payable {
+        require(pauseContract == 0, "Contract Paused");
+        if(_totalWhitelistedUsers > maxOfWhiteListedUsers) require(msg.value >= 0.2 ether, "You should pay 0.2 AVAX to be whitelisted.");
+        WhiteListForUsers[_addr] = true;
+        _totalWhitelistedUsers ++;
+    }
+
+    function isWhitelistedForUsers(address _addr) public view returns(bool){
+        return WhiteListForUsers[_addr];
+    }
+
+    function isWhiteListed(address _addr) public view returns(bool){
+        return WhiteListForInvestors[_addr] || WhiteListForUsers[_addr];
+    }
+
     function mint(uint256 _count)  external  payable  {   
+        require(pauseContract == 0, "Contract Paused");
+        require(enableMint == true, "Minting is disabled");
+        require(_count == 1, "You can only mint one NFT at once.");
         require(_totalSupply - _numberOfTokens.current() - _count > 0, "Cannot mint. The collection has no remains."); 
         uint256 _price;
-        if(saleMode == 1) _price = preSalePrice * _count;
-        if(saleMode == 2) _price = publicSalePrice * _count;
+        if(isWhiteListed(msg.sender) == true) _price = preSalePrice * _count;
+        else _price = publicSalePrice * _count;
+        // if(saleMode == 1) _price = preSalePrice * _count;
+        // if(saleMode == 2) _price = publicSalePrice * _count;
+
         // require(msg.value >= _price, "Invalid price, price is less than sale price."); 
 
         require(msg.sender != address(0), "Invalid recipient address." );        
 
         uint256 idx;
 
-        for(idx = 0; idx < _count; idx++){
-
+        for(idx = 0; idx < _count; idx++)
+        {
             uint256 nftId = randomIndex();
             _numberOfTokens.increment();
             _mint(msg.sender, nftId);
 
             if( _numberOfTokens.current() % spanSize == 0 )
                 consideringSpanIndex++;
-
         }                   
         
         // feeWallet1.transfer(_price * percentOfWallet1 / 100);
@@ -200,6 +286,30 @@ contract PhoenixKnightNFT is ERC721, Ownable {
     }
 
     function burn(uint256 _tokenId) external onlyOwner {
+        require(pauseContract == 0, "Contract Paused");
         _burn(_tokenId);
     }
+    
+    function withdrawAll(address _tokenAddr) external onlyOwner{
+        if(_tokenAddr != address(0))
+        {
+            uint256 balance = IERC20(_tokenAddr).balanceOf(address(this));
+            if(balance > 0) {
+                IERC20(_tokenAddr).transfer(msg.sender, balance);
+            }
+            emit WithdrawAll(msg.sender, balance, 0);
+        }
+        else{        
+            address payable mine = payable(msg.sender);
+            uint256 _amount = address(this).balance;
+            if(_amount > 0) {
+                mine.transfer(_amount);
+            }
+            emit WithdrawAll(msg.sender, 0, _amount);
+        }
+    }
 }
+
+
+
+
