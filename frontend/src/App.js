@@ -16,9 +16,9 @@ import {
   useScrollSection,
   Section,
 } from 'react-scroll-section';
-import Snowing from "./components/Snowing";
+// import Snowing from "./components/Snowing";
 import HomeTeam from "./HomeTeam";
-import { CardContent } from '@mui/material';
+// import { CardContent } from '@mui/material';
 
 const useStyles = makeStyles({
   aa: {
@@ -416,6 +416,10 @@ function App() {
               id="video_element"
               autoPlay={true} muted playsInline="" loop={true} src="./response.mp4" style={{ width: "100%" }} 
             ></video>
+            {/* <img className="elementor-background-video-hosted elementor-html5-video" 
+              id="video_element"
+              src="./Design (2).jpg" style={{ width: "100%" }} 
+            ></img> */}
           </div>
           {/* <Snowing height={heightOfSnowing} /> */}
           <div className="elementor-column-gap-default">
@@ -427,15 +431,16 @@ function App() {
               </h3>
             </div> */}
             <div className="elementor-element elementor-widget-eael-creative-button" id="getWLButtonDiv" >
-              <a href='https://discord.gg/bwk8NqE6'  target="_blank" >
+              <div >
               <div className="eael-creative-button-wrapper" >
+                <div id="opennig_soon" >Opening soon</div>
                 <div className="creative-button-inner" id="hh" onMouseOver={() => onMOverButton("hh")} onMouseLeave={() => onMLeaveButton("hh")} >              
                   <Button className={classes.cc}  >
                     {/* GET ON THE WHITELIST */}
                   </Button>                   
                 </div>
               </div>
-              </a>
+              </div>
             </div>
           </div>
 
