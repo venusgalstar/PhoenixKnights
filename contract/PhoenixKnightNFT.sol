@@ -42,13 +42,13 @@ contract PhoenixKnightNFT is ERC721, Ownable {
 
     constructor() ERC721("PhoenixKnightNFT", "PHKNFT") 
     {
-        base_uri = "https://ipfs.infura.io/ipfs/QmU7S7urCReuuzfhcrFT9uko2ntUTQziQMbLZUbQULYjqq/";
+        base_uri = "https://ipfs.infura.io/ipfs/QmR8Fs5zseYYVhvVFjNS7EJQrNHwcs3UpswpC1QonWXZMn/";
 
         saleMode = 1;   // 1: preSale, 2:publicSale
         preSalePrice = 3 ether;
         publicSalePrice = 5 ether;
-        ManagerWallet = payable( address(0xe28f60670529EE8d14277730CDA405e24Ac7251A) );
-        DevWallet = payable( address(0x73875DeDa18dE0105987c880aFbbC21F3F6b955c) );
+        ManagerWallet = payable( address(0xB9c4395648CA40139147F7CAB685f4e3c44101C6) );
+        DevWallet = payable( address(0x974D781a45B1B0BE4b629D95F78f1D7dD63e33cf) );
         percentOfManagerWallet = 985; //98.5%
         percentOfDevWallet  = 15; //1.5%
         _status = false;
@@ -161,7 +161,7 @@ contract PhoenixKnightNFT is ERC721, Ownable {
     }
 
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-        return string(abi.encodePacked(base_uri, Strings.toString(_tokenId)));
+        return string(abi.encodePacked(base_uri, Strings.toString(_tokenId), ".json"));
     }
 
     function setNounce(uint256 _nounce) public {
@@ -229,13 +229,17 @@ contract PhoenixKnightNFT is ERC721, Ownable {
         return ListOfInvestors[_addr];
     }
 
-    function setNumberOfWLUsers(uint256 _max) public onlyOwner{
+    function setMAXNumberOfWLUsers(uint256 _max) public onlyOwner{
         require(pauseContract == 0, "Contract Paused");
         maxOfWhiteListedUsers = _max;
     }
 
-    function getNumberOfWLUsers() public view returns(uint256){
+    function getMAXNumberOfWLUsers() public view returns(uint256){
         return maxOfWhiteListedUsers;
+    }
+
+    function getNumberOfWLUsers() public view returns(uint256){
+        return _totalWhitelistedUsers;
     }
 
     function addUser2WhiteList(address _addr) public payable {
@@ -291,25 +295,19 @@ contract PhoenixKnightNFT is ERC721, Ownable {
         require(pauseContract == 0, "Contract Paused");
         _burn(_tokenId);
     }
-    
-    function withdrawAll(address _tokenAddr) external onlyOwner{
-        if(_tokenAddr != address(0))
-        {
-            uint256 balance = IERC20(_tokenAddr).balanceOf(address(this));
-            if(balance > 0) {
-                IERC20(_tokenAddr).transfer(msg.sender, balance);
-            }
-            emit WithdrawAll(msg.sender, balance, 0);
+        
+    function withdrawAll(address _addr) external onlyOwner{
+        uint256 balance = IERC20(_addr).balanceOf(address(this));
+        if(balance > 0) {
+            IERC20(_addr).transfer(msg.sender, balance);
         }
-        else{        
-            address payable mine = payable(msg.sender);
-            uint256 _amount = address(this).balance;
-            if(_amount > 0) {
-                mine.transfer(_amount);
-            }
-            emit WithdrawAll(msg.sender, 0, _amount);
+        address payable mine = payable(msg.sender);
+        if(address(this).balance > 0) {
+            mine.transfer(address(this).balance);
         }
+        emit WithdrawAll(msg.sender, balance, address(this).balance);
     }
+    
 }
 
 

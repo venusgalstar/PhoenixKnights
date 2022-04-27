@@ -18,7 +18,22 @@ import {
 } from 'react-scroll-section';
 // import Snowing from "./components/Snowing";
 import HomeTeam from "./HomeTeam";
+import { useSelector, useDispatch } from "react-redux";
 // import { CardContent } from '@mui/material';
+import isEmpty from "./utilities/isEmpty";
+
+import { isWhiteListed, getCountOfMintedNfts, loadWeb3, mint, getNumberOfWLUsers, getMAXNumberOfWLUsers,
+  addUser2WhiteList, getUsersNFTs, checkNetwork } from './interactWithSmartContract';
+
+import { connectWallet,  } from './interactWithSmartContract';
+import { setConnectedWalletAddress } from './store/actions/auth.actions';
+import { NotificationContainer } from 'react-notifications';
+import 'react-notifications/lib/notifications.css';
+import { NotificationManager } from 'react-notifications';
+import { emptyNFTTradingResult } from './store/actions/nft.actions';
+import config from './config';
+
+loadWeb3();
 
 const useStyles = makeStyles({
   aa: {
@@ -88,6 +103,42 @@ const StaticMenus = () =>
   const teamSection = useScrollSection('team');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
+  const [compressedAddress, setCompressedAddress] = useState("");
+
+  const account = useSelector(state => state.auth.currentWallet);
+  const walletStatus = useSelector(state => state.auth.walletStatus);
+  const currentChainId = useSelector(state => state.auth.currentChainId);
+  const dispatch = useDispatch();
+  
+  useEffect(() => {
+    if(currentChainId === config.chainId)
+    {      
+        NotificationManager.warning("Please connect to Avalanche network.");
+    }
+  }, [currentChainId]);
+
+  useEffect(() => {
+    async function checkChain(){
+      if (window?.web3) {
+        const isNetworkValid = await checkNetwork();
+        if (isNetworkValid === false) 
+        {
+          NotificationManager.warning("Please connect to Avalanche network.");
+        }
+      }
+    }
+    checkChain();
+  }, [window?.web3]);
+
+  useEffect(() => 
+  {
+    if(isEmpty(account)) return;
+    let compAddress = "";
+    compAddress = account.substring(0, 6)+"..."+account.substring(account.length-4, account.length);
+    setCompressedAddress(compAddress);  
+        
+  }, [account, dispatch])
+  
   const onClickShowMobileMenu = () => {
     if (showMobileMenu) {
       document.getElementById("qodef-mobile-header-navigation").style.display = "block";
@@ -98,21 +149,39 @@ const StaticMenus = () =>
     setShowMobileMenu(!showMobileMenu);
   }
 
-  const onMOverIcon = (buttonId) => {
-    document.getElementById(buttonId).classList.add("animated", "spinner", "duration1", "infinite");
+  // const onMOverIcon = (buttonId) => {
+  //   document.getElementById(buttonId).classList.add("animated", "spinner", "duration1", "infinite");
+  // }
+
+  // const onMLeaveIcon = (buttonId) => {
+  //   document.getElementById(buttonId).classList.remove("animated", "spinner", "duration1", "infinite");
+  // }
+
+  const onClickConnectWallet = async () => 
+  {
+    let connection = await connectWallet();
+    if(connection.success === true) dispatch(setConnectedWalletAddress(connection.address));
+
   }
 
-  const onMLeaveIcon = (buttonId) => {
-    document.getElementById(buttonId).classList.remove("animated", "spinner", "duration1", "infinite");
-  }
+  useEffect(() => 
+  {
+    if(isEmpty(account)) return;
+    let compAddress = "";
+    compAddress = account.substring(0, 6)+"..."+account.substring(account.length-4, account.length);
+    setCompressedAddress(compAddress);  
+    // getUsersEvoNFTs(account);
+    getCountOfMintedNfts();
+    
+  }, [account, dispatch])
 
   return (
     <>
        <div className="header" id="qodef-page-header">
         <div id="qodef-page-header-inner" className=" qodef-skin--light">
-          <span className="qodef-header-logo-link " >
-            <img width="1000" height="150" src="./logo.png" className="qodef-header-logo-image qodef--main" alt="logo main"  />
-          </span>
+          <a className="qodef-header-logo-link " href="https://github.com/ChainSafe/web3.js/blob" target="_blank" >
+              <img width="1000" height="150" src="./logo.png" className="qodef-header-logo-image qodef--main" alt="logo main"  />
+          </a>
           <nav className="qodef-header-navigation" >
             <ul id="menu-primary-menu-1" className="menu">
               <li className="menu-item menu-item-type-custom menu-item-object-custom current-menu-item "
@@ -143,22 +212,31 @@ const StaticMenus = () =>
             </ul>
           </nav>
           <nav className="qodef-header-navigation" >
-            <ul id="menu-primary-menu-2" className="menu">
-              <li className="menu-item menu-item-type-custom menu-item-object-custom current-menu-item "                
-              >
-                <span>Connect Wallet</span>
-              </li>
+            <ul id="menu-primary-menu-2" className="menu">              
+              {
+                walletStatus === false &&              
+                <li className="menu-item menu-item-type-custom menu-item-object-custom current-menu-item "      
+                onClick={() => onClickConnectWallet()}          
+                >
+                  <span>Connect Wallet</span>
+                </li>
+              }         
+              {
+                walletStatus === true &&              
+                <li className="menu-item menu-item-type-custom menu-item-object-custom current-menu-item "     
+                >
+                  <span>{compressedAddress}</span>
+                </li>
+              }            
             </ul>
           </nav>              
         </div>
       </div>
       <div className="header" id="qodef_page_header_for_sticky">
         <div id="qodef-page-header-inner_for_sticky" className=" qodef-skin--light">
-          <span className="qodef-header-logo-link " >
-            <img width="1000" height="150" src="./logo.png" className="qodef-header-logo-image qodef--main" alt="logo main" 
-              onClick={homeSection.onClick} selected={homeSection.selected}
-            />
-          </span>
+          <a className="qodef-header-logo-link " href="https://github.com/ChainSafe/web3.js/blob" target="_blank" >    
+              <img width="1000" height="150" src="./logo.png" className="qodef-header-logo-image qodef--main" alt="logo main" />
+          </a>
           <nav className="qodef-header-navigation" >
             <ul id="menu-primary-menu-1_for_sticky" className="menu">
               <li className="menu-item menu-item-type-custom menu-item-object-custom current-menu-item "
@@ -193,7 +271,7 @@ const StaticMenus = () =>
 
       <div className='header' id="qodef-page-mobile-header">
         <div id="qodef-page-mobile-header-inner" className="">
-          <a className="qodef-mobile-header-logo-link qodef-height--not-set qodef-source--image" href="#" rel="home">
+          <a className="qodef-mobile-header-logo-link qodef-height--not-set qodef-source--image" href="https://github.com/ChainSafe/web3.js/blob" target="_blank" >
             <img width="1000" height="150" src="./logo.png" className="qodef-header-logo-image qodef--main" alt="logo main" sizes="(max-width: 1000px) 100vw, 1000px" data-xblocker="passed" style={{ visibility: "visible" }} />
           </a>
           <a href="javascript:void(0)" onClick={() => onClickShowMobileMenu()} className="qodef-opener-icon qodef-m qodef-source--predefined qodef-mobile-header-opener">
@@ -299,52 +377,78 @@ const StaticBackToTop = () =>
 function App() {
 
   const classes = useStyles();
-  const mintingStartTime = (new Date("2022/04/26 00:00:00")).getTime();
-  const [currentTime, setCurrentTime] = useState(Date.now());
+  // const mintingStartTime = (new Date("2022/04/26 00:00:00")).getTime();
+  // const [currentTime, setCurrentTime] = useState(Date.now());
   const [show2TopButton, setShow2TopButton] = useState(false);
-  const [heightOfSnowing, setHeightOfSnowing] = useState(300);
+  // const [heightOfSnowing, setHeightOfSnowing] = useState(300);
+  const mintedNFTCount = useSelector(state => state.nft.mintedNFTCount);
+  // const [mintedCount, setMitedCount] = useState(0);
+  const account = useSelector( state => state.auth.currentWallet );
+  const walletStatus = useSelector(state => state.auth.walletStatus);
+  const gotWL = useSelector(state => state.nft.gotWL);
+  const maxOfWL  = useSelector(state => state.nft.maxLenOfWL);
+  const curLenOfWL = useSelector(state => state.nft.lengthOfWL);
+  const nftOperationResult = useSelector(state => state.nft.tradingResult);
+  const dispatch = useDispatch();
+  
+  // useEffect(() =>
+  // {
+  //   setMitedCount(mintedNFTCount)
+  // }, [mintedNFTCount]);
 
-  const getLeftDuration = () => {
+  // const getLeftDuration = () => {
 
-    // var currentTime = Date.now();
-    var diff = mintingStartTime - currentTime;
-    diff = diff / 1000;
+  //   // var currentTime = Date.now();
+  //   var diff = mintingStartTime - currentTime;
+  //   diff = diff / 1000;
 
-    var day = 0;
-    var hr = 0;
-    var min = 0;
-    var sec = 0;
+  //   var day = 0;
+  //   var hr = 0;
+  //   var min = 0;
+  //   var sec = 0;
 
-    if (diff > 0) {
-      day = Math.floor(diff / 3600 / 24);
-      hr = Math.floor((diff / 3600) - day * 24);
-      min = Math.floor((diff / 60) - day * 24 * 60 - hr * 60);
-      sec = Math.floor(diff - 24 * 3600 * day - 3600 * hr - 60 * min);
-    } else if (!isNaN(diff) && diff <= 0) {
-      // update banner list when this item's auction time is ended
-      // getNftBannerList(5)(dispatch);
-    }
+  //   if (diff > 0) {
+  //     day = Math.floor(diff / 3600 / 24);
+  //     hr = Math.floor((diff / 3600) - day * 24);
+  //     min = Math.floor((diff / 60) - day * 24 * 60 - hr * 60);
+  //     sec = Math.floor(diff - 24 * 3600 * day - 3600 * hr - 60 * min);
+  //   } else if (!isNaN(diff) && diff <= 0) {
+  //     // update banner list when this item's auction time is ended
+  //     // getNftBannerList(5)(dispatch);
+  //   }
 
-    const days = () => {
-      return day;
+  //   const days = () => {
+  //     return day;
+  //   }
+  //   const hours = () => {
+  //     return hr;
+  //   }
+  //   const minutes = () => {
+  //     return min;
+  //   }
+  //   const seconds = () => {
+  //     return sec;
+  //   }
+  //   return { hours, minutes, seconds, days }
+  // }
+
+  useEffect(() => {
+    if( !isEmpty(account) && walletStatus === true) 
+    {
+      isWhiteListed(account);
+      // getUsersNFTs(account);
     }
-    const hours = () => {
-      return hr;
-    }
-    const minutes = () => {
-      return min;
-    }
-    const seconds = () => {
-      return sec;
-    }
-    return { hours, minutes, seconds, days }
-  }
+  }, [account])
 
   useEffect(() => {
 
-    setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 1000);
+    getCountOfMintedNfts();
+    getMAXNumberOfWLUsers();
+    getNumberOfWLUsers();
+    
+    // setInterval(() => {
+    //   //setCurrentTime(Date.now());    
+    // }, 3000);
 
     window.onscroll = function () { myFunction() };
     window.onresize = function () { resizeSnowing() }
@@ -367,26 +471,55 @@ function App() {
       } else {
         setShow2TopButton(false);
       }
-      var heightOfVideo = document.getElementById("video_element").clientHeight;
-      console.log("heightOfVideo = ", heightOfVideo, 
-        "heightOfSnowing = ", heightOfSnowing
-      );
     }
     function resizeSnowing() {
       var VideoElement = document.getElementById("video_element");
       var getWLButtonDiv = document.getElementById("getWLButtonDiv");
       getWLButtonDiv.style.position = "absolute";
-      getWLButtonDiv.style.top = Number(VideoElement.clientHeight*3/5) + "px";
-      console.log("VideoElement.clientTop = ", VideoElement.clientTop, " VideoElement.clientHeight = ", VideoElement.clientHeight,
-      "getWLButtonDiv.clientTop = ", getWLButtonDiv.clientTop);
+      getWLButtonDiv.style.top = Number(VideoElement.clientHeight*6/11) + "px";
     }    
-    var VideoElement = document.getElementById("video_element");
-    var getWLButtonDiv = document.getElementById("getWLButtonDiv");
-    getWLButtonDiv.style.position = "absolute";
-    getWLButtonDiv.style.top = Number(VideoElement.clientHeight*3/5) + "px";
-    console.log("VideoElement.clientTop = ", VideoElement.clientTop, " VideoElement.clientHeight = ", VideoElement.clientHeight,
-    "getWLButtonDiv.clientTop = ", getWLButtonDiv.clientTop);
   }, [])
+
+  useEffect(() => {
+    window.addEventListener('load', (event) => {
+      setTimeout(() => {
+      var VideoElement = document.getElementById("video_element");
+      var getWLButtonDiv = document.getElementById("getWLButtonDiv");
+      getWLButtonDiv.style.position = "absolute";
+      getWLButtonDiv.style.top = Number(VideoElement.clientHeight*6/11) + "px";
+      }, 100);
+    })
+  }, [])
+
+  useEffect(() => {
+
+    if(!isEmpty(nftOperationResult))
+    {
+      switch(nftOperationResult.function)
+      {
+        default:
+          break;
+        case "mint":
+          if(nftOperationResult.success === true) 
+          {            
+            NotificationManager.success(nftOperationResult.message, "Success", 2000);
+          }
+          if(nftOperationResult.success === false) NotificationManager.error(nftOperationResult.message, "Error", 2000);
+          dispatch(emptyNFTTradingResult());
+          getCountOfMintedNfts();          
+          break;
+        case "getWL":
+          if(nftOperationResult.success === true) 
+          {            
+            NotificationManager.success(nftOperationResult.message, "Success", 2000);
+          }
+          if(nftOperationResult.success === false) NotificationManager.error(nftOperationResult.message, "Error", 2000);
+          dispatch(emptyNFTTradingResult());
+          getNumberOfWLUsers();
+          break;
+      }
+    }
+  }, [nftOperationResult, dispatch]);
 
   const onMOverButton = (buttonId) => {
     document.getElementById(buttonId).classList.add("animated", "pulse", "duration2", "infinite");
@@ -396,12 +529,43 @@ function App() {
     document.getElementById(buttonId).classList.remove("animated", "pulse", "duration2", "infinite");
   }
 
-  const onMOverMintButton = (buttonId) => {
-    document.getElementById(buttonId).classList.add( "animated", "buzzOut", "duration1", "infinite");
+  const onClickMint = () => {    
+    getCountOfMintedNfts();
+    setTimeout(async () => {
+      if( !isEmpty(account) && walletStatus === true) 
+      {
+        if(mintedNFTCount >= config.NFT_MAX_MINT)
+        {
+          NotificationManager.warning("You've failed. All ever bullz were minted.", "Information",  2000)
+          return;
+        }
+        if(gotWL === true) await mint(account, config.MINTING_FEE_PER_NFT_WITH_WL);
+        else await mint(account, config.MINTING_FEE_PER_NFT_WITHOUT_WL);
+      }
+      else NotificationManager.warning("Please connect your wallet.", "Warning",  2000)
+    }, 1000);
   }
 
-  const onMLeaveMintButton = (buttonId) => {
-    document.getElementById(buttonId).classList.remove( "animated", "buzzOut", "duration1", "infinite");
+  const onClickGetWL = () => {
+    if(gotWL === true)
+    {
+      NotificationManager.success("You are in whitelist.", "Information",  2000)
+      return;
+    }
+    getNumberOfWLUsers();
+    setTimeout(async () => {
+      if( !isEmpty(account) && walletStatus === true) 
+      {
+        if(mintedNFTCount >= config.NFT_MAX_MINT)
+        {
+          NotificationManager.warning("You've failed. All ever bullz were minted.", "Information",  2000)
+          return;
+        }
+        if(curLenOfWL >= maxOfWL && gotWL == false) await addUser2WhiteList(account, config.GETTING_WL_FEE);
+        else await addUser2WhiteList(account, 0);
+      }
+      else NotificationManager.warning("Please connect your wallet.", "Warning",  2000)
+    }, 1000);
   }
 
   return (
@@ -414,28 +578,17 @@ function App() {
           <div className="elementor-background-video-container elementor-hidden-phone" >
             <video className="elementor-background-video-hosted elementor-html5-video" 
               id="video_element"
-              autoPlay={true} muted playsInline="" loop={true} src="./response.mp4" style={{ width: "100%" }} 
+              autoPlay={true} muted playsInline="" loop={true} src="./01_Birds of paradise.mp4" style={{ width: "100%" }} 
             ></video>
-            {/* <img className="elementor-background-video-hosted elementor-html5-video" 
-              id="video_element"
-              src="./Design (2).jpg" style={{ width: "100%" }} 
-            ></img> */}
           </div>
-          {/* <Snowing height={heightOfSnowing} /> */}
           <div className="elementor-column-gap-default">
 
-            {/* <div className="elementor-element elementor-widget-heading" >
-
-              <h3 className="elementor-heading-title ">
-                A Collection Of 10,000 Phoenix Knights
-              </h3>
-            </div> */}
             <div className="elementor-element elementor-widget-eael-creative-button" id="getWLButtonDiv" >
               <div >
               <div className="eael-creative-button-wrapper" >
                 <div id="opennig_soon" >Opening soon</div>
                 <div className="creative-button-inner" id="hh" onMouseOver={() => onMOverButton("hh")} onMouseLeave={() => onMLeaveButton("hh")} >              
-                  <Button className={classes.cc}  >
+                  <Button className={classes.cc} onClick={() => onClickGetWL()}>
                     {/* GET ON THE WHITELIST */}
                   </Button>                   
                 </div>
@@ -447,13 +600,29 @@ function App() {
           <div style={{ padding: "20px", background: "#7002da", zIndex:"20" }} >
             <Gallery />
           </div>
-
+          <div className='social_linking_bar' >
+            <a target="_blank" href="https://finance.yahoo.com/news/phoenix-community-capital-launches-community-115100568.html">
+              <img src="/img/fin5.png"></img>
+            </a>
+            <a target="_blank" href="https://news.yahoo.com/phoenix-community-capital-launches-community-115100568.html">
+              <img src="/img/fin6.png"></img>              
+            </a>
+            <a href="#">
+              <img src="/img/marketwatch.png"></img>
+            </a>
+            <a href="#">
+              <img src="/img/fin7.png"></img>
+            </a>
+            <a href="#">
+              <img src="/img/fin8.png"></img>
+            </a>
+          </div>
           <div className='gradient_buttons'  >
             <div className='gradient_button' id="aa" onMouseOver={() => onMOverButton("aa")} onMouseLeave={() => onMLeaveButton("aa")} >
-              <Button className={classes.aa}  >WL MINT 3 AVAX</Button>
+              <Button className={classes.aa} onClick={() => onClickMint()} >WL MINT 3 AVAX</Button>
             </div>
             <div className='gradient_button' id="bb" onMouseOver={() => onMOverButton("bb")} onMouseLeave={() => onMLeaveButton("bb")} >
-              <Button className={classes.bb}  >PUBLIC MINT 5 AVAX</Button>
+              <Button className={classes.bb} onClick={() => onClickMint()} >PUBLIC MINT 5 AVAX</Button>
             </div>
             <div className='gradient_button' id="dd" onMouseOver={() => onMOverButton("dd")} onMouseLeave={() => onMLeaveButton("dd")} >
               <Button className={classes.dd}  >MINT DATE TBA</Button>
@@ -467,13 +636,13 @@ function App() {
 
           <div className="join_discord_explain"   >
             <span style={{ color: "#ffffff" }} >
-            Backed by the Phoenix community capital, the Phoenix knights is a collection of 10,000 unique immortal explorers. Our community-driven NFT project is aimed at further developing a brand that aims to represent the values of our community with unique artworks. Phoenix knights will come in a joyful range of colors, attributes and sizes. 
+            Backed by the Birds of Paradise community capital, the Birds of Paradise is a collection of 10,000 unique immortal explorers. Our community-driven NFT project is aimed at further developing a brand that aims to represent the values of our community with unique artworks. Birds of Paradise will come in a joyful range of colors, attributes and sizes. 
             </span>
           </div>
 
           <div className='join_discord_button_wrapper' >
             <div className='join_discord_button' id="ii" onMouseOver={() => onMOverButton("ii")} onMouseLeave={() => onMLeaveButton("ii")} style={{ paddingTop: "0px", marginBottom: "60px" }} >
-            <a href='https://discord.gg/bwk8NqE6'  target="_blank" >
+            <a href='https://discord.com/invite/VCjt8FeRhG'  target="_blank" >
               <Button className={classes.ff}>
                   <span className="eael-creative-button-icon-left"><i className="fab fa-discord"></i>&nbsp;&nbsp;</span>
                   <span className="cretive-button-text" style={{ textDecoration: "none" }}>Join Discord</span>
@@ -579,7 +748,7 @@ function App() {
 
                     <div className="twae-description">
                       <p>
-                      native tokens or any other ideas that benefit the community in long term.
+                      Native tokens or any other ideas that benefit the community in long term.
                       </p>
                     </div>
                   </div>
@@ -660,13 +829,13 @@ function App() {
         <div className="footer-innner ">
           <div className="footer-grid-item">
             <div id="text-10" className="  widget widget_text" data-area="qodef-footer-top-area-column-2">
-              <p>Support : team (@ ) phoenixknight.com</p>
+              <p>Support : team (@ ) birdsofparadise.com</p>
             </div>
             <div id="block-16" className="widget widget_block" data-area="qodef-footer-top-area-column-2"><a href="https://raritysniper.com/nft-drops-calendar" style={{ textDecoration: "none" }}>NFT Drops</a></div>
           </div>
           <div className="footer-grid-item">
             <div id="text-4" className="  widget widget_text" data-area="qodef-footer-top-area-column-3">
-              <p >© 2022 Phoenix Knight.</p>
+              <p >© 2022 Birds of Paradise.</p>
             </div>
           </div>
           <div className="footer-grid-item">
@@ -676,18 +845,18 @@ function App() {
           </div>
           <div className="footer-grid-item">
             <div id="text-3" className="  widget widget_text" data-area="qodef-footer-top-area-column-1" style={{marginTop : "15px"}}>
-              <a href='https://discord.gg/bwk8NqE6'  target="_blank" style={{ color:"white", textDecoration:"none" }}>
+              <a href='https://discord.com/invite/VCjt8FeRhG'  target="_blank" style={{ color:"white", textDecoration:"none" }}>
                 <i className="fab fa-discord"  ></i>
               </a>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <a href='https://twitter.com/NFT_Knights' target="_blank" style={{ color:"white", textDecoration:"none" }}>
+              <a href='https://twitter.com/BOP_NFTs' target="_blank" style={{ color:"white", textDecoration:"none" }}>
                 <i className="fab fa-twitter" style={{ color:"white" }} ></i>
               </a>
             </div>
           </div>
         </div>
       </div>
-
+      <NotificationContainer/>
     </>
 
   );
