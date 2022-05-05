@@ -6850,6 +6850,7 @@ body, #qodef-page-wrapper {
   }
   .creative-button-inner {
     width: 40%;
+    min-width: 185px;
   }
   .galleryHome .swiper-slide {
     border-radius: 2rem;
