@@ -563,7 +563,7 @@ function App() {
               <div className="eael-creative-button-wrapper" >
                 <div id="opennig_soon" >Opening soon</div>
                 <div className="creative-button-inner headBtn" id="hh" onMouseOver={() => onMOverButton("hh")} onMouseLeave={() => onMLeaveButton("hh")} >              
-                  <Button className={classes.cc} onClick={() => onClickGetWL()}>
+                  <Button className="makeStyles-cc-3" onClick={() => onClickGetWL()}>
                     GET ON THE WHITELIST
                   </Button>                   
                 </div>

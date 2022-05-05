@@ -23,7 +23,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 .eds-scroll-visible {
 	opacity:1;	
 }
-
+button {
+  -webkit-appearance: none;
+}
 .animated {
    -webkit-animation-duration: 1s;
       -moz-animation-duration: 1s;
@@ -6792,6 +6794,7 @@ body, #qodef-page-wrapper {
     border: none;
     outline: none;
     height: auto;
+    padding: 10px;
   }
   nav>ul>li>span {
     font-size: 16px;
@@ -6850,6 +6853,7 @@ body, #qodef-page-wrapper {
   }
   .creative-button-inner {
     width: 40%;
+    min-width: 185px;
   }
   .galleryHome .swiper-slide {
     border-radius: 2rem;
