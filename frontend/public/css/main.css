@@ -6852,6 +6852,7 @@ body, #qodef-page-wrapper {
 @media (max-width: 600px) {
   .headBtn .makeStyles-cc-3 {
     margin-top: 0;
+    min-width: 215px;
   }
   .creative-button-inner {
     width: 40%;
