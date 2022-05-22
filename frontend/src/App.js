@@ -22,7 +22,9 @@ import { useSelector, useDispatch } from "react-redux";
 import isEmpty from "./utilities/isEmpty";
 
 import { isWhiteListed, getCountOfMintedNfts, loadWeb3, mint, getNumberOfWLUsers, getMAXNumberOfWLUsers,
-  addUser2WhiteList, getUsersNFTs, checkNetwork } from './interactWithSmartContract';
+  addUser2WhiteList, 
+  // getUsersNFTs, 
+  checkNetwork } from './interactWithSmartContract';
 
 import { connectWallet,  } from './interactWithSmartContract';
 import { setConnectedWalletAddress } from './store/actions/auth.actions';
@@ -110,7 +112,8 @@ const StaticMenus = () =>
   const dispatch = useDispatch();
   
   useEffect(() => {
-    if(currentChainId === config.chainId)
+    console.log(config.chainId, currentChainId);
+    if(window.web3.utils.toHex(currentChainId) !== window.web3.utils.toHex(config.chainId))
     {      
         NotificationManager.warning("Please connect to Avalanche network.");
     }
@@ -131,7 +134,7 @@ const StaticMenus = () =>
 
   useEffect(() => 
   {
-    if(isEmpty(account)) return;
+    if(isEmpty(account) === true) return;
     let compAddress = "";
     compAddress = account.substring(0, 6)+"..."+account.substring(account.length-4, account.length);
     setCompressedAddress(compAddress);  
@@ -198,11 +201,11 @@ const StaticMenus = () =>
               >
                 <span className="qodef-menu-item-text">Stake(Coming Soon)</span>
               </li>
-              <li className="menu-item menu-item-type-custom menu-item-object-custom current-menu-item "
+              {/* <li className="menu-item menu-item-type-custom menu-item-object-custom current-menu-item "
                 onClick={teamSection.onClick} selected={teamSection.selected}
               >
                 <span className="qodef-menu-item-text">Team</span>
-              </li>
+              </li> */}
               <li className="menu-item menu-item-type-custom menu-item-object-custom current-menu-item "
                 onClick={faqsSection.onClick} selected={faqsSection.selected}
               >
@@ -253,11 +256,11 @@ const StaticMenus = () =>
               >
                 <span className="qodef-menu-item-text">Stake(Coming Soon)</span>
               </li>
-              <li className="menu-item menu-item-type-custom menu-item-object-custom current-menu-item "
+              {/* <li className="menu-item menu-item-type-custom menu-item-object-custom current-menu-item "
                 onClick={teamSection.onClick} selected={teamSection.selected}
               >
                 <span className="qodef-menu-item-text">Team</span>
-              </li>
+              </li> */}
               <li className="menu-item menu-item-type-custom menu-item-object-custom current-menu-item "
                 onClick={faqsSection.onClick} selected={faqsSection.selected}
               >
@@ -308,11 +311,11 @@ const StaticMenus = () =>
               >
                 <span className="qodef-menu-item-text">Stake(Coming Soon)</span>
               </li>
-              <li className="menu-item menu-item-type-custom "
+              {/* <li className="menu-item menu-item-type-custom "
                 onClick={teamSection.onClick} selected={teamSection.selected}
               >
                 <span className="qodef-menu-item-text">Team</span>
-              </li>
+              </li> */}
               <li className="menu-item menu-item-type-custom "
                 onClick={faqsSection.onClick} selected={faqsSection.selected}
               >
@@ -352,8 +355,9 @@ const StaticBackToTop = () =>
 function App() {
 
   const classes = useStyles();
-  // const mintingStartTime = (new Date("2022/04/26 00:00:00")).getTime();
-  // const [currentTime, setCurrentTime] = useState(Date.now());
+  const mintingStartTime = (new Date("2022/05/24 15:05:00")).getTime();
+  const [showDownCounting, setShowDownCounting] = useState(true);
+  const [currentTime, setCurrentTime] = useState(Date.now());
   const [show2TopButton, setShow2TopButton] = useState(false);
   // const [heightOfSnowing, setHeightOfSnowing] = useState(300);
   const mintedNFTCount = useSelector(state => state.nft.mintedNFTCount);
@@ -371,41 +375,45 @@ function App() {
   //   setMitedCount(mintedNFTCount)
   // }, [mintedNFTCount]);
 
-  // const getLeftDuration = () => {
+  const getLeftDuration = () => {
 
-  //   // var currentTime = Date.now();
-  //   var diff = mintingStartTime - currentTime;
-  //   diff = diff / 1000;
+    var diff = mintingStartTime - currentTime;
+    diff = diff / 1000;
 
-  //   var day = 0;
-  //   var hr = 0;
-  //   var min = 0;
-  //   var sec = 0;
+    var day = 0;
+    var hr = 0;
+    var min = 0;
+    var sec = 0;
 
-  //   if (diff > 0) {
-  //     day = Math.floor(diff / 3600 / 24);
-  //     hr = Math.floor((diff / 3600) - day * 24);
-  //     min = Math.floor((diff / 60) - day * 24 * 60 - hr * 60);
-  //     sec = Math.floor(diff - 24 * 3600 * day - 3600 * hr - 60 * min);
-  //   } else if (!isNaN(diff) && diff <= 0) {
-  //     // update banner list when this item's auction time is ended
-  //     // getNftBannerList(5)(dispatch);
-  //   }
+    if (diff > 0) {
+      day = Math.floor(diff / 3600 / 24);
+      hr = Math.floor((diff / 3600) - day * 24);
+      min = Math.floor((diff / 60) - day * 24 * 60 - hr * 60);
+      sec = Math.floor(diff - 24 * 3600 * day - 3600 * hr - 60 * min);
+    } else if (!isNaN(diff) && diff <= 0) {
+      // update banner list when this item's auction time is ended
+      // getNftBannerList(5)(dispatch);
+    }
 
-  //   const days = () => {
-  //     return day;
-  //   }
-  //   const hours = () => {
-  //     return hr;
-  //   }
-  //   const minutes = () => {
-  //     return min;
-  //   }
-  //   const seconds = () => {
-  //     return sec;
-  //   }
-  //   return { hours, minutes, seconds, days }
-  // }
+    if(day <=0 && hr <=0 && min<=0 && sec<=0)
+    {
+      setShowDownCounting(false);
+    }
+
+    const days = () => {
+      return day;
+    }
+    const hours = () => {
+      return hr;
+    }
+    const minutes = () => {
+      return min;
+    }
+    const seconds = () => {
+      return sec;
+    }
+    return { hours, minutes, seconds, days }
+  }
 
   useEffect(() => {
     if( !isEmpty(account) && walletStatus === true) 
@@ -421,9 +429,9 @@ function App() {
     getMAXNumberOfWLUsers();
     getNumberOfWLUsers();
     
-    // setInterval(() => {
-    //   //setCurrentTime(Date.now());    
-    // }, 3000);
+    setInterval(() => {
+      setCurrentTime(Date.now());    
+    }, 1000);
 
     window.onscroll = function () { myFunction() };
     window.onresize = function () { resizeSnowing() }
@@ -561,7 +569,12 @@ function App() {
             <div className="elementor-element elementor-widget-eael-creative-button" id="getWLButtonDiv" >
               <div >
               <div className="eael-creative-button-wrapper" >
-                <div id="opennig_soon" >Opening soon</div>
+                {
+                  showDownCounting === true && 
+                  <div id="opennig_soon" >
+                    {`${getLeftDuration().days()} days ${getLeftDuration().hours()} hours ${getLeftDuration().minutes()} minutes ${getLeftDuration().seconds()} seconds`}
+                  </div>
+                }
                 <div className="creative-button-inner headBtn" id="hh" onMouseOver={() => onMOverButton("hh")} onMouseLeave={() => onMLeaveButton("hh")} >              
                   <Button className="makeStyles-cc-3" onClick={() => onClickGetWL()}>
                     GET ON THE WHITELIST

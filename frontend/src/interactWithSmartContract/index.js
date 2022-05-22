@@ -29,12 +29,13 @@ export const loadWeb3 = async () =>
   if (window.ethereum) {
     window.ethereum.on('chainChanged', function (chainId) {
 
+      store.dispatch(setConnectedChainId(chainId));
       checkNetworkById(chainId);
 
     });
     window.ethereum.on('disconnect', function(error  /*:ProviderRpcError*/) {
       //alert("disconnected, " + error);      
-      store.dispatch(setConnectedWalletAddress(0));
+      store.dispatch(setConnectedWalletAddress(null));
       store.dispatch(setWalletStatus(false));
     });
     window.ethereum.on('accountsChanged', function(accounts /*: Array<string>*/) {
@@ -97,8 +98,8 @@ const changeNetwork = async () =>
             params: [
               {
                 chainId: window.web3.utils.toHex(config.chainId),
-                chainName: 'Cronos',
-                rpcUrls: [config.testNetUrl] /* ... */,
+                chainName: 'Avalanche',
+                rpcUrls: [config.mainNetUrl] /* ... */,
               },
             ],
           });
