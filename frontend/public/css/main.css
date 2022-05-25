@@ -6779,6 +6779,8 @@ body, #qodef-page-wrapper {
 .member__photo img {
   border: 15px solid white;
   border-radius: 3rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 #text-3 {
