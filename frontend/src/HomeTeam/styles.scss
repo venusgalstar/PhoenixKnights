@@ -20,12 +20,14 @@
 .member {
   padding: 30px;
   text-align: center;
+  box-sizing: border-box;
+  width: 33%;
 }
 
 .member__photo {
   position: relative;
   margin: 25px auto;
-  width: 355px;
+  width: 100%;
   height: auto;
 }
 
@@ -55,6 +57,7 @@
 
   .member {
     padding: 5px;
+    width: 60%;
   }
 
   .member__link {
