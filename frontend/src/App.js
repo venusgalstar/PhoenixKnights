@@ -181,7 +181,7 @@ const StaticMenus = () =>
     <>
        <div className="header" id="qodef-page-header">
         <div id="qodef-page-header-inner" className=" qodef-skin--light">
-          <a className="qodef-header-logo-link " href="https://github.com/ChainSafe/web3.js/blob" target="_blank" >
+          <a className="qodef-header-logo-link " href="/" target="_blank" >
               <img width="1000" height="150" src="./logo.png" className="qodef-header-logo-image qodef--main" alt="logo main"  />
           </a>
           <nav className="qodef-header-navigation" >
@@ -236,7 +236,7 @@ const StaticMenus = () =>
       </div>
       <div className="header" id="qodef_page_header_for_sticky">
         <div id="qodef-page-header-inner_for_sticky" className=" qodef-skin--light">
-          <a className="qodef-header-logo-link " href="https://github.com/ChainSafe/web3.js/blob" target="_blank" >    
+          <a className="qodef-header-logo-link " href="/" target="_blank" >    
               <img width="1000" height="150" src="./logo.png" className="qodef-header-logo-image qodef--main" alt="logo main" />
           </a>
           <nav className="qodef-header-navigation" >
@@ -273,7 +273,7 @@ const StaticMenus = () =>
 
       <div className='header' id="qodef-page-mobile-header">
         <div id="qodef-page-mobile-header-inner" className="">
-          <a className="qodef-mobile-header-logo-link qodef-height--not-set qodef-source--image" href="https://github.com/ChainSafe/web3.js/blob" target="_blank" >
+          <a className="qodef-mobile-header-logo-link qodef-height--not-set qodef-source--image" href="/" target="_blank" >
             <img width="1000" height="150" src="./logo.png" className="qodef-header-logo-image qodef--main" alt="logo main" sizes="(max-width: 1000px) 100vw, 1000px" data-xblocker="passed" style={{ visibility: "visible" }} />
           </a>
           <a href="javascript:void(0)" onClick={() => onClickShowMobileMenu()} className="qodef-opener-icon qodef-m qodef-source--predefined qodef-mobile-header-opener">
