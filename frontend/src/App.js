@@ -16,7 +16,7 @@ import {
   Section,
 } from 'react-scroll-section';
 // import Snowing from "./components/Snowing";
-import HomeTeam from "./HomeTeam";
+// import HomeTeam from "./HomeTeam";
 import { useSelector, useDispatch } from "react-redux";
 // import { CardContent } from '@mui/material';
 import isEmpty from "./utilities/isEmpty";
@@ -352,10 +352,11 @@ const StaticBackToTop = () =>
   )
 }
 
-function App() {
-
+function App() 
+{
   const classes = useStyles();
-  const mintingStartTime = (new Date("2022/05/24 15:05:00")).getTime();
+  const mintingStartTime = (new Date(	1653562800 * 1000)).getTime();
+
   const [showDownCounting, setShowDownCounting] = useState(true);
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [show2TopButton, setShow2TopButton] = useState(false);
@@ -375,9 +376,12 @@ function App() {
   //   setMitedCount(mintedNFTCount)
   // }, [mintedNFTCount]);
 
+  // console.log("mintingStartTime = ", mintingStartTime, "currentTime = ", currentTime);
+
   const getLeftDuration = () => {
 
     var diff = mintingStartTime - currentTime;
+
     diff = diff / 1000;
 
     var day = 0;
