@@ -778,12 +778,12 @@ function App()
 
         </Section>
 
-        {/* <Section id="team" style={{ marginTop: "100px", marginBottom: "-30px" }}>
+        <Section id="team" style={{ marginTop: "100px", marginBottom: "-30px" }}>
           <div className='mintingStarttime_title'>OUR TEAM</div>
 
           <HomeTeam />
 
-        </Section> */}
+        </Section>
 
         <Section id="faqs" >
           <div className='mintingStarttime_title' style={{ marginTop: "50px", marginBottom: "30px" }}>FAQ'S</div>
