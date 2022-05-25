@@ -797,7 +797,7 @@ function App() {
         <div className="footer-innner ">
           <div className="footer-grid-item">
             <div id="text-10" className="  widget widget_text" data-area="qodef-footer-top-area-column-2">
-              <p>Support : team (@ ) birdsofparadise.com</p>
+              <p>Support : team ( @ ) theparadise.io</p>
             </div>
             <div id="block-16" className="widget widget_block" data-area="qodef-footer-top-area-column-2"><a href="https://raritysniper.com/nft-drops-calendar" style={{ textDecoration: "none" }}>NFT Drops</a></div>
           </div>
