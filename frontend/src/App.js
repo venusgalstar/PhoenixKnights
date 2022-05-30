@@ -16,7 +16,7 @@ import {
   Section,
 } from 'react-scroll-section';
 // import Snowing from "./components/Snowing";
-// import HomeTeam from "./HomeTeam";
+import HomeTeam from "./HomeTeam";
 import { useSelector, useDispatch } from "react-redux";
 // import { CardContent } from '@mui/material';
 import isEmpty from "./utilities/isEmpty";
@@ -34,7 +34,7 @@ import { NotificationManager } from 'react-notifications';
 import { emptyNFTTradingResult } from './store/actions/nft.actions';
 import config from './config';
 
-loadWeb3();
+loadWeb3(  );
 
 const useStyles = makeStyles({
   aa: {
@@ -58,7 +58,6 @@ const useStyles = makeStyles({
     height: "5vw",
     backgroundImage: 'url("./getWLbutton.png")', 
     backgroundColor: "#ffff00 !important", 
-    backgroundSize:"contain",
     borderRadius: "45px !important",
     backgroundRepeat: "no-repeat",
     display: 'flex',
@@ -99,7 +98,7 @@ const StaticMenus = () =>
   const homeSection = useScrollSection('home');
   const RoadmapSection = useScrollSection('Roadmap');
   const stakeSection = useScrollSection('stake');
-  const mintSection = useScrollSection('mint');
+  // const mintSection = useScrollSection('mint');
   const faqsSection = useScrollSection('faqs');
   const teamSection = useScrollSection('team');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -111,11 +110,12 @@ const StaticMenus = () =>
   const currentChainId = useSelector(state => state.auth.currentChainId);
   const dispatch = useDispatch();
   
-  useEffect(() => {
-    console.log(config.chainId, currentChainId);
-    if(window.web3.utils.toHex(currentChainId) !== window.web3.utils.toHex(config.chainId))
-    {      
-        NotificationManager.warning("Please connect to Avalanche network.");
+  useEffect(() => {  
+    if (window?.web3) {
+      if(window.web3.utils.toHex(currentChainId) !== window.web3.utils.toHex(config.chainId))
+      {      
+          NotificationManager.warning("Please connect to Avalanche network.");
+      }
     }
   }, [currentChainId]);
 
@@ -163,6 +163,9 @@ const StaticMenus = () =>
   {
     let connection = await connectWallet();
     if(connection.success === true) dispatch(setConnectedWalletAddress(connection.address));
+    else {
+      NotificationManager.warning(connection.message);
+    }
 
   }
 
@@ -320,7 +323,23 @@ const StaticMenus = () =>
                 onClick={faqsSection.onClick} selected={faqsSection.selected}
               >
                 <span className="qodef-menu-item-text">FAQ’s</span>
-              </li>
+              </li>        
+              {
+                walletStatus === false &&              
+                <li className="menu-item menu-item-type-custom "
+                onClick={() => onClickConnectWallet()} selected={homeSection.selected}      
+                >
+                  <span className="qodef-menu-item-text">Connect Wallet</span>
+                </li>
+              }         
+              {
+                walletStatus === true &&              
+                <li className="menu-item menu-item-type-custom "
+                onClick={() => onClickConnectWallet()} selected={homeSection.selected}
+                >
+                  <span>{compressedAddress}</span>
+                </li>
+              }            
             </ul>
           </nav>
         </div>
@@ -370,13 +389,6 @@ function App()
   const curLenOfWL = useSelector(state => state.nft.lengthOfWL);
   const nftOperationResult = useSelector(state => state.nft.tradingResult);
   const dispatch = useDispatch();
-  
-  // useEffect(() =>
-  // {
-  //   setMitedCount(mintedNFTCount)
-  // }, [mintedNFTCount]);
-
-  // console.log("mintingStartTime = ", mintingStartTime, "currentTime = ", currentTime);
 
   const getLeftDuration = () => {
 
@@ -462,8 +474,11 @@ function App()
     function resizeSnowing() {
       var VideoElement = document.getElementById("video_element");
       var getWLButtonDiv = document.getElementById("getWLButtonDiv");
-      getWLButtonDiv.style.position = "absolute";
-      getWLButtonDiv.style.top = Number(VideoElement.clientHeight*6/11) + "px";
+      if(getWLButtonDiv !== undefined && getWLButtonDiv !== null)
+      {
+        getWLButtonDiv.style.position = "absolute";
+        getWLButtonDiv.style.top = Number(VideoElement.clientHeight*6/11) + "px";
+      }
     }    
   }, [])
 
@@ -472,8 +487,11 @@ function App()
       setTimeout(() => {
       var VideoElement = document.getElementById("video_element");
       var getWLButtonDiv = document.getElementById("getWLButtonDiv");
-      getWLButtonDiv.style.position = "absolute";
-      getWLButtonDiv.style.top = Number(VideoElement.clientHeight*6/11) + "px";
+      if(getWLButtonDiv !== undefined && getWLButtonDiv !== null)
+      {
+        getWLButtonDiv.style.position = "absolute";
+        getWLButtonDiv.style.top = Number(VideoElement.clientHeight*6/11) + "px";
+      }
       }, 100);
     })
   }, [])
@@ -774,7 +792,6 @@ function App()
               <SingleGallery />
             </div>
           </div>
-
 
         </Section>
 

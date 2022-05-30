@@ -9,6 +9,34 @@ const HomeTeam = () => {
                 <div className="members">
                     <div className="member">
                         <div className="member__photo">
+                            <img src="/img/luke-sullivan.png"/>
+                            <a
+                                href="https://www.linkedin.com/in/luke-sullivan-0750b7aa/"
+                                className="member__link"
+                                target="_blank"
+                            >
+                                <i className="fab fa-linkedin" style={{ color: "red" }} />
+                            </a>
+                        </div>
+                        <p  style={{ color: "white", fontSize: 20, }} >Luke Sullivan</p>
+                        <p  style={{ color: "white" }} >Advisor</p>
+                    </div>
+                    <div className="member">
+                        <div className="member__photo">
+                            <img src="/img/eric-marshall.png"/>
+                            <a
+                                href="https://www.linkedin.com/in/ericcmarshall/"
+                                className="member__link"
+                                target="_blank"
+                            >
+                                <i className="fab fa-linkedin" style={{ color: "red" }} />
+                            </a>
+                        </div>
+                        <p  style={{ color: "white", fontSize: 20, }} >Eric Marshall</p>
+                        <p  style={{ color: "white" }} >Advisor</p>
+                    </div>
+                    <div className="member">
+                        <div className="member__photo">
                             <img src="/img/anil-thapa.jpg"/>
                             <a
                                 href="https://twitter.com/TheParadiseAnil"
@@ -48,34 +76,6 @@ const HomeTeam = () => {
                         </div>
                         <p  style={{ color: "white", fontSize: 20, }} >Elizabeth Quismorio</p>
                         <p  style={{ color: "white" }} >CMO ( Cheif Marketing Officer)</p>
-                    </div>
-                    <div className="member">
-                        <div className="member__photo">
-                            <img src="/img/luke-sullivan.png"/>
-                            <a
-                                href="https://www.linkedin.com/in/luke-sullivan-0750b7aa/"
-                                className="member__link"
-                                target="_blank"
-                            >
-                                <i className="fab fa-linkedin" style={{ color: "red" }} />
-                            </a>
-                        </div>
-                        <p  style={{ color: "white", fontSize: 20, }} >Luke Sullivan</p>
-                        <p  style={{ color: "white" }} >Advisor</p>
-                    </div>
-                    <div className="member">
-                        <div className="member__photo">
-                            <img src="/img/eric-marshall.png"/>
-                            <a
-                                href="https://www.linkedin.com/in/ericcmarshall/"
-                                className="member__link"
-                                target="_blank"
-                            >
-                                <i className="fab fa-linkedin" style={{ color: "red" }} />
-                            </a>
-                        </div>
-                        <p  style={{ color: "white", fontSize: 20, }} >Eric Marshall</p>
-                        <p  style={{ color: "white" }} >Advisor</p>
                     </div>
                 </div>
             </div>
