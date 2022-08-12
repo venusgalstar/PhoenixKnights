@@ -9,7 +9,7 @@ const HomeTeam = () => {
                 <div className="members">
                     <div className="member">
                         <div className="member__photo">
-                            <img src="/img/luke-sullivan.png"/>
+                            <img src="/img/7750.png"/>
                             <a
                                 href="https://www.linkedin.com/in/luke-sullivan-0750b7aa/"
                                 className="member__link"
@@ -23,7 +23,7 @@ const HomeTeam = () => {
                     </div>
                     <div className="member">
                         <div className="member__photo">
-                            <img src="/img/eric-marshall.png"/>
+                            <img src="/img/7753.png"/>
                             <a
                                 href="https://www.linkedin.com/in/ericcmarshall/"
                                 className="member__link"
@@ -37,7 +37,7 @@ const HomeTeam = () => {
                     </div>
                     <div className="member">
                         <div className="member__photo">
-                            <img src="/img/anil-thapa.jpg"/>
+                            <img src="/img/7757.png"/>
                             <a
                                 href="https://twitter.com/TheParadiseAnil"
                                 className="member__link"
