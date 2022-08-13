@@ -670,14 +670,14 @@ function App()
           </div>
           <div className='gradient_buttons'  >
             <div className='gradient_button' id="aa" >
-              <Button className={classes.aa} onClick={() => onClickMint()} >WL MINT 3 AVAX</Button>
+              <Button className={classes.aa} onClick={() => onClickMint()} >MINT 1 AVAX</Button>
             </div>
-            <div className='gradient_button' id="bb" >
+            {/* <div className='gradient_button' id="bb" >
               <Button className={classes.bb} onClick={() => onClickMint()} >PUBLIC MINT 5 AVAX</Button>
             </div>
             <div className='gradient_button noCursor' id="dd" >
               <Button className={classes.dd}  >MINT DATE TBA</Button>
-            </div>
+            </div> */}
           </div>
 
           {/* <div className="elementor-divider" style={{ width: "100%" }} >
