@@ -639,8 +639,8 @@ function App()
                   </div>
                 }
                 <div className="creative-button-inner headBtn" id="hh" onMouseOver={() => onMOverButton("hh")} onMouseLeave={() => onMLeaveButton("hh")} >              
-                  <Button className="makeStyles-cc-3" onClick={() => onClickGetWL()}>
-                    GET ON THE WHITELIST
+                  <Button className="makeStyles-cc-3" onClick={() => onClickMint()}>
+                    Mint with 1 AVAX
                   </Button>                   
                 </div>
               </div>
@@ -687,7 +687,7 @@ function App()
 
           <div className="join_discord_explain"   >
             <span style={{ color: "#ffffff" }} >
-            Backed by Phoenix Community Capital, Birds of Paradise is a collection of 10,000 unique immortal winged explorers. This community driven NFT project aims to reflect the values of our members through unique artworks. Birds of Paradise will come in a joyful range of colors, attributes and sizes.  
+            Birds of Paradise is a collection of 10,000 unique immortal winged explorers. This community driven NFT project aims to reflect the values of our members through unique artworks. Birds of Paradise will come in a joyful range of colors, attributes and sizes.  
             </span>
           </div>
 
